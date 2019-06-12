@@ -1,2 +1,2 @@
-# Tasks-Sniper
+# TaskSniper
 TODO bot
