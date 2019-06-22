@@ -1,9 +1,11 @@
 import telebot
 
-bot = telebot.TeleBot("")
+bot = telebot.TeleBot("748710982:AAEvwNNi3k0JqsLb4abddSoPWsPDlVcOzkE")
 RED = {}
 YELLOW = {}
 GREEN = {}
+bot.remove_webhook()
+
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
@@ -22,7 +24,7 @@ class TaskSniper:
 			task = ''
 			for i in t:
 				task += i + " "
-			if DCT == {}:
+			if DCT == {} or message.chat.id not in DCT.keys():
 				DCT[message.chat.id] = [task]
 			else:
 				DCT[message.chat.id].append(task)
@@ -54,7 +56,7 @@ class TaskSniper:
 			task = ''
 			for i in t:
 				task += i + " "
-			if DCT != {}:
+			if DCT != {} and message.chat.id in DCT.keys():
 				if task in DCT[message.chat.id]:
 					DCT[message.chat.id].remove(task)
 					bot.send_message(message.chat.id, "Task '{}' deleted!".format(task))
