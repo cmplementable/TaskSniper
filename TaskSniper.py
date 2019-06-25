@@ -1,5 +1,7 @@
 import telebot
+from telebot import types
 from dbhelper import DBHelper
+
 
 
 bot = telebot.TeleBot("")
@@ -15,6 +17,97 @@ green_db = DBHelper("green_todo.sqlite")
 def send_welcome(message):
 	bot.send_message(message.chat.id, "Hey! I can help you with your tasks!")
 	bot.send_message(message.chat.id, "My slogan is: One shot - one kill!")
+	key = types.ReplyKeyboardMarkup(True,False)
+	key.row("Create", "View")
+	send = bot.send_message(message.chat.id, "Choose your mode: ", reply_markup=key)
+
+@bot.message_handler(func=lambda message: message.text == "Create")
+def keyboard_handler(message):
+	if message.text == "Create":
+		send = bot.send_message(message.chat.id, "Mode Create!")
+		bot.send_message(message.chat.id, "For priority RED! Write down your task '@<your_task> !")
+		bot.send_message(message.chat.id, "For priority YELLOW! Write down your task '*<your_task> !")
+		bot.send_message(message.chat.id, "For priority GREEN! Write down your task '$<your_task> !")
+
+@bot.message_handler(func=lambda message: message.text[0] == "@")
+def create_r(message):
+	RED_CRUD = TaskSniper()
+	RED_CRUD.new_task(message, red_db)
+	
+@bot.message_handler(func=lambda message: message.text[0] == "*")
+def create_y(message):
+	YELLOW_CRUD = TaskSniper()
+	YELLOW_CRUD.new_task(message, yellow_db)
+
+@bot.message_handler(func=lambda message: message.text[0] == "$")
+def create_g(message):
+	GREEN_CRUD = TaskSniper()
+	GREEN_CRUD.new_task(message, green_db)
+
+@bot.message_handler(func=lambda message: message.text == "View")	
+def view(message):
+	send = bot.send_message(message.chat.id, "Mode View!")
+	key_priority_view = telebot.types.ReplyKeyboardMarkup(True,False)
+	key_priority_view.row("View red", "View yellow", "View green")
+	send = bot.send_message(message.chat.id, "Choose your priority: ", reply_markup=key_priority_view)
+
+@bot.message_handler(func=lambda message: message.text == "View red")
+def view_red(message):
+	key = types.ReplyKeyboardMarkup(True,False)
+	key.row("Create", "View")
+	RED_CRUD = TaskSniper()
+	items_r = RED_CRUD.get_tasks(message, red_db)
+	items_red = telebot.types.ReplyKeyboardMarkup(True,False)
+	if items_r != None:
+		for i in items_r:
+			items_red.add(i)
+		send = bot.send_message(message.chat.id, "Choose task: ", reply_markup=items_red)
+	else:
+		send = bot.send_message(message.chat.id, "You haven't tasks", reply_markup=key)
+	@bot.message_handler(func=lambda message: items_r != None and message.text in items_r)
+	def delete_r(message):
+		print("Red")
+		RED_CRUD.done(message, red_db)
+		send = bot.send_message(message.chat.id, "Choose your mode: ", reply_markup=key)
+
+@bot.message_handler(func=lambda message: message.text == "View yellow")
+def view_yellow(message):
+	key = types.ReplyKeyboardMarkup(True,False)
+	key.row("Create", "View")
+	YELLOW_CRUD = TaskSniper()
+	items_y = YELLOW_CRUD.get_tasks(message, yellow_db)
+	items_yellow = telebot.types.ReplyKeyboardMarkup(True,False)
+	if items_y != None:
+		for i in items_y:
+			items_yellow.add(i)
+		send = bot.send_message(message.chat.id, "Choose task: ", reply_markup=items_yellow)
+	else:
+		send = bot.send_message(message.chat.id, "You haven't tasks", reply_markup=key)
+	@bot.message_handler(func=lambda message: items_y != None and message.text in items_y)
+	def delete_y(message):
+		print("Yellow")
+		YELLOW_CRUD.done(message, yellow_db)
+		send = bot.send_message(message.chat.id, "Choose your mode: ", reply_markup=key)
+
+@bot.message_handler(func=lambda message: message.text == "View green")
+def view_green(message):
+	key = types.ReplyKeyboardMarkup(True,False)
+	key.row("Create", "View")
+	GREEN_CRUD = TaskSniper()
+	bot.send_message(message.chat.id, "Priority GREEN! Choose task for delete!")
+	items_g = GREEN_CRUD.get_tasks(message, green_db)
+	items_green = telebot.types.ReplyKeyboardMarkup(True,False)
+	if items_g != None:
+		for i in items_g:
+			items_green.add(i)
+		send = bot.send_message(message.chat.id, "Choose task: ", reply_markup=items_green)
+	else:
+		send = bot.send_message(message.chat.id, "You haven't tasks", reply_markup=key)
+	@bot.message_handler(func=lambda message: items_g != None and message.text in items_g)
+	def delete_g(message):
+		print("GREEN")
+		GREEN_CRUD.done(message, green_db)
+		send = bot.send_message(message.chat.id, "Choose your mode: ", reply_markup=key)
 
 ### Create class for CRUD tasks ###
 class TaskSniper:
@@ -22,44 +115,31 @@ class TaskSniper:
 	def new_task(self, message, DB):
 		DB.setup()
 		u_id = message.chat.id
-		t = message.text.split(" ")
-		t = t[1:]
-		if t == []:
-			bot.send_message(u_id, "Invalid input! Use /done_<priority> <your_task> !")
+		task = message.text[1:]
+		if task == None:
+			bot.send_message(u_id, "Invalid input!")
 		else:
-			task = ''
-			for i in t:
-				task += i + " "
 			DB.add_item(task, u_id)
 			bot.send_message(u_id, "Task '{}' created!".format(task))
 			
-	
 	### get tasks
 	def get_tasks(self, message, DB):
 		DB.setup()
 		u_id = message.chat.id
 		items = DB.get_items(u_id)
 		if items != []:	
-			bot.send_message(u_id, "Your tasks: ")
-			for item in items:
-				bot.send_message(u_id, str(item))
+			return items
 		else:
-			bot.send_message(u_id, "You haven't tasks")
-		
-			
+			pass
 	### delete task
 	def done(self, message, DB):
 		DB.setup()
 		u_id = message.chat.id
 		items = DB.get_items(u_id)
-		t = message.text.split(" ")
-		t = t[1:]
-		if t == []:
-			bot.send_message(message.chat.id, "Invalid input! Use /done_<priority> <your_task> !")
+		task = message.text
+		if task == None:
+			bot.send_message(message.chat.id, "Invalid input!")
 		else:
-			task = ''
-			for i in t:
-				task += i + " "
 			if items != []:
 				if task in items:
 					DB.delete_item(task, u_id)
@@ -68,55 +148,6 @@ class TaskSniper:
 					bot.send_message(message.chat.id, "You haven't task '{}'".format(task))
 			else:
 				bot.send_message(message.chat.id, "You haven't tasks")
-
-### RED CRUD tasks ###
-@bot.message_handler(commands=['new_red'])
-def create(message):				
-	RED_CRUD = TaskSniper()
-	RED_CRUD.new_task(message, red_db)
-	
-@bot.message_handler(commands=['red'])
-def get(message):				
-	RED_CRUD = TaskSniper()
-	RED_CRUD.get_tasks(message, red_db)
-
-@bot.message_handler(commands=['done_red'])
-def delete(message):				
-	RED_CRUD = TaskSniper()
-	RED_CRUD.done(message, red_db)
-
-### YELLOW CRUD tasks ###
-@bot.message_handler(commands=['new_yellow'])
-def create(message):				
-	YELLOW_CRUD = TaskSniper()
-	YELLOW_CRUD.new_task(message, yellow_db)
-	
-@bot.message_handler(commands=['yellow'])
-def get(message):				
-	YELLOW_CRUD = TaskSniper()
-	YELLOW_CRUD.get_tasks(message, yellow_db)
-
-@bot.message_handler(commands=['done_yellow'])
-def delete(message):				
-	YELLOW_CRUD = TaskSniper()
-	YELLOW_CRUD.done(message, yellow_db)
-	
-### GREEN CRUD tasks ###
-@bot.message_handler(commands=['new_green'])
-def create(message):				
-	GREEN_CRUD = TaskSniper()
-	GREEN_CRUD.new_task(message, green_db)
-	
-@bot.message_handler(commands=['green'])
-def get(message):				
-	GREEN_CRUD = TaskSniper()
-	GREEN_CRUD.get_tasks(message, green_db)
-
-@bot.message_handler(commands=['done_green'])
-def delete(message):				
-	GREEN_CRUD = TaskSniper()
-	GREEN_CRUD.done(message, green_db)
-
 
 bot.polling()
 
