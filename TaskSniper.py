@@ -1,4 +1,4 @@
-import telebot
+import telebot, schedule, threading, time
 from telebot import types
 from dbhelper import DBHelper
 
@@ -20,6 +20,19 @@ def send_welcome(message):
 	key = types.ReplyKeyboardMarkup(True,False)
 	key.row("Create", "View")
 	send = bot.send_message(message.chat.id, "Choose your mode: ", reply_markup=key)
+	
+	RED_CRUD = TaskSniper()
+	items_r = RED_CRUD.get_tasks(message, red_db)
+	YELLOW_CRUD = TaskSniper()
+	items_y = YELLOW_CRUD.get_tasks(message, yellow_db)
+	GREEN_CRUD = TaskSniper()
+	items_g = GREEN_CRUD.get_tasks(message, green_db)
+	if items_r != None:
+		send_notify(RED_CRUD.reminder, message, red_db)
+	elif items_r == None and items_y != None:
+		send_notify(YELLOW_CRUD.reminder, message, yellow_db)
+	elif items_y == None and items_g != None:
+		send_notify(GREEN_CRUD.reminder, message, green_db)
 
 @bot.message_handler(func=lambda message: message.text == "Create")
 def keyboard_handler(message):
@@ -109,6 +122,21 @@ def view_green(message):
 		GREEN_CRUD.done(message, green_db)
 		send = bot.send_message(message.chat.id, "Choose your mode: ", reply_markup=key)
 
+def send_notify(job, message, db):
+	schedule.every().hour.do(job, message=message, DB=db)
+	kill_update = threading.Event()
+
+	class SearchUpdateThread(threading.Thread):
+		def run(self):
+			while not kill_update.is_set():
+				schedule.run_pending()
+				time.sleep(10)
+				
+	searchThread = SearchUpdateThread()
+	searchThread.setDaemon(True)
+	searchThread.start()
+
+
 ### Create class for CRUD tasks ###
 class TaskSniper:
 	### create task 
@@ -148,6 +176,15 @@ class TaskSniper:
 					bot.send_message(message.chat.id, "You haven't task '{}'".format(task))
 			else:
 				bot.send_message(message.chat.id, "You haven't tasks")
+				
+	def reminder(self, message, DB):
+		DB.setup()
+		u_id = message.chat.id
+		items = DB.get_items(u_id)
+		if items != []:	
+			bot.send_message(u_id, "You have task: " + str(items[0]))
+		else:
+			pass
 
 bot.polling()
 
