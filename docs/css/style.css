@@ -1,0 +1,118 @@
+body {font-family: "Montserrat";}
+
+/*
+** HEADERS  
+*/
+
+h1,
+h2,
+h3,
+h4,
+h5 {font-family:"Roboto Slab"; color:white;}
+
+/*
+** CONTAINERS 
+*/
+
+.container {padding: 40px 20px; color:white;}
+
+.container-spacy {padding: 80px 20px; color:white;}
+
+
+
+/*
+** BACKGROUND
+*/
+
+/* color for text #2ba6cb */
+
+.background-eerie {background-color: #111224;}
+.background-blue-green {background-color: #1a95af;}
+.background-anti-flash-white {background-color: #eef0f2;}
+.background-green {background-color: #00fe51;}
+.background-smoky-black {background-color: #100d11;}
+
+/*
+** HEADER 
+*/
+
+header#main .brand a {display:block; font-family:"Lato"; font-size:2em; color:#00fe51;}
+
+/*
+** NAV 
+*/
+
+nav#main ul {list-style-type:none; margin:0; padding:0; float:right;}
+
+nav#main li {display:inline-block; margin-right:15px;}
+
+nav#main ul li:last-child {margin-right:0;}
+
+nav#main ul li a {font-size:78%; text-transform:uppercase; font-weight:600;}
+
+/*
+** BUTTONS
+*/
+
+.button {padding: 15px 30px; border-radius:5px;}
+
+.button-primary:hover {background-color:#00fe51; color:white;}
+
+/*
+** FEATURE 
+*/
+
+.feature {margin-top:70px;}
+
+.large-7 {margin-bottom: 40px;}
+
+.feature h1 {padding-top: 60px; font-size:4em; text-transform:uppercase; font-weight:700;}
+
+.feature h3 {font-size:1.5em; text-transform:uppercase; font-weight:400;}
+
+
+/*
+** ABOUT PROJECT
+*/
+
+.about-project, .about-project h1 {color: #100d11; text-align:center;}
+
+.about-project h1 {text-transform:uppercase;}
+
+.about-project p {font-size:1.3em; padding:0 25%;}
+
+/*
+** SCREENSHOTS  
+*/
+
+.screenshot img {margin-bottom:20px;}
+
+/*
+** FEATURES
+*/
+.our-features h1 {text-align:center; text-transform:uppercase; padding-bottom:60px;}
+
+.features {text-align:center; }
+
+.features h5 {font-weight:600; font-size:1.5em;}
+
+.features p {margin-bottom:40px;}
+
+.features img {margin-bottom:20px; width:200px; height:200px;}
+
+/*
+** OUR TEAM 
+*/
+.our-team {text-align:center; }
+
+.our-team h1 {color:#100d11; text-align:center; text-transform:uppercase; padding-bottom:20px;}
+
+.our-team h3 {color:#100d11; font-size:2em; padding-bottom:60px;}
+
+.our-team h5 {padding-top:20px; color:#100d11; font-weight:600; font-size:1.5em;}
+
+/*
+** FOOTER
+*/
+
+.cpr {text-align:center;}
