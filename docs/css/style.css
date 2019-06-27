@@ -61,14 +61,16 @@ nav#main ul li a {font-size:78%; text-transform:uppercase; font-weight:600;}
 /*
 ** FEATURE 
 */
+.txt-color h1, .txt-color h3 {color:#2ba6cb;}
 
 .feature {margin-top:70px;}
 
-.large-7 {margin-bottom: 40px;}
+.large-2 {margin-bottom: 40px;}
 
 .feature h1 {padding-top: 60px; font-size:4em; text-transform:uppercase; font-weight:700;}
 
 .feature h3 {font-size:1.5em; text-transform:uppercase; font-weight:400;}
+
 
 
 /*
